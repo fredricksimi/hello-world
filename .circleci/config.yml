@@ -12,13 +12,16 @@ jobs:
       - run
           echo "Poteto" > output.txt
       - persist_to_workspace:
-        root: workspace
+        root: ~/
+        paths:
+          - output.txt
   print_output_file:
-    steps:
-      - attach_workspace:
-          - at /tmp/workspace
-      - run:
-        command: cat "output.txt"
+    docker:
+      - image: cimg/base:stable
+      steps:
+        - attach_workspace:
+            - at ~/
+        - run: cat ~/output.txt
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -26,4 +29,6 @@ workflows:
   say-hello-workflow:
     jobs:
       - save_hello_world_output
-      - print_output_file
+      - print_output_file:
+          requires:
+            -  save_hello_world_output
